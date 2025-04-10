@@ -1,0 +1,15 @@
+{
+  "version": "0.2.1",
+  "tasks": [
+    {
+      "taskLabel": "task-codeql",
+      "appliesTo": ".github/workflows/codeql.yml",
+      "type": "launch"
+    },
+    {
+      "taskLabel": "task-",
+      "appliesTo": ".gitignore",
+      "type": "launch"
+    }
+  ]
+}
