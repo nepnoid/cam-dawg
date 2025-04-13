@@ -52,7 +52,40 @@ def setup_logger(name=None):
 
     return logger
 
-# Create the platform connector class
+import requests
+import os
+
+class PlatformConnector:
+    """Handles communication with Uphold platform"""
+
+    def __init__(self):
+        self.logger = logging.getLogger("PlatformConnector")
+
+        # Load credentials from .env file
+        self.client_id = os.getenv('UPHOLD_CLIENT_ID')
+        self.client_secret = os.getenv('UPHOLD_CLIENT_SECRET')
+
+        # Obtain an OAuth2 token
+        self.access_token = self.get_access_token()
+        if not self.access_token:
+            raise Exception("Failed to authenticate with Uphold API")
+
+    def get_access_token(self):
+        """Authenticate with Uphold and get an access token"""
+        url = "https://api.uphold.com/oauth2/token"
+        data = {
+            "client_id": self.client_id,
+            "client_secret": self.client_secret,
+            "grant_type": "client_credentials"
+        }
+        try:
+            response = requests.post(url, data=data)
+            response.raise_for_status()
+            return response.json().get("access_token")
+        except Exception as e:
+            self.logger.error(f"Error fetching access token: {e}")
+            return None
+        
 class PlatformConnector:
     """Handles communication with the trading platform"""
 
@@ -194,7 +227,19 @@ class Strategy:
             }
 
         return None
-
+def get_market_data(self, symbol="XRP-USD"):
+    """Fetch historical market data for XRP"""
+    url = f"https://api.uphold.com/v0/ticker/{symbol}"
+    headers = {"Authorization": f"Bearer {self.access_token}"}
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        data = response.json()
+        self.logger.info(f"Market Data: {data}")
+        return data
+    except Exception as e:
+        self.logger.error(f"Error fetching market data: {e}")
+        return None
 # Risk Manager class
 class RiskManager:
     """Manages trading risk according to configuration"""
